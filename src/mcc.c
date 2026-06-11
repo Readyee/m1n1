@@ -419,7 +419,7 @@ int mcc_init_t8132(int node, int *path)
 
     if (!adt_getprop(adt, node, "reg", &reg_len))
     {
-      printf("MCC: failed to get Reg of mcc");
+      printf("MCC: failed to get reg of mcc");
       return -1;
     };
 
