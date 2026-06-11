@@ -108,9 +108,8 @@ const struct midr_part_features features_m3 = {
     .counter_redirect = true,
 };
 
-// XXX figure out what features are actually available on M4
 const struct midr_part_features features_m4 = {
-    .sleep_mode = SLEEP_NONE, // XXX probably new mode required
+    .sleep_mode = SLEEP_NONE,
     .fast_ipi = true,
     .actlr_el2 = true,
 };
@@ -151,8 +150,8 @@ const struct midr_part_info midr_parts[] = {
     {MIDR_PART_T6031_SAWTOOTH, "M3 Max Sawtooth", init_t6031_sawtooth, &features_m3},
     {MIDR_PART_T8122_EVEREST, "M3 Everest", init_t8122_everest, &features_m3},
     {MIDR_PART_T8122_SAWTOOTH, "M3 Sawtooth", init_t8122_sawtooth, &features_m3},
-    {MIDR_PART_T8132_DONAN_ECORE, "M4 Donan (E core)", NULL, &features_m4},
-    {MIDR_PART_T8132_DONAN_PCORE, "M4 Donan (P core)", NULL, &features_m4},
+    {MIDR_PART_T8132_EVEREST, "M4 Everest", NULL, &features_m4},
+    {MIDR_PART_T8132_SAWTOOTH, "M4 Sawtooth", NULL, &features_m4},
     {MIDR_PART_T8140_TAHITI_ECORE, "A18 Pro Tahiti (E core)", NULL, &features_m4},
     {MIDR_PART_T8140_TAHITI_PCORE, "A18 Pro Tahiti (P core)", NULL, &features_m4},
 };
