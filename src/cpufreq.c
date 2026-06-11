@@ -57,6 +57,7 @@ static u32 pstate_reg_to_pstate(u64 val)
         case T8010:
         case T8011:
         case T8012:
+        case T8132:
         case T8015:
         case T8103:
         case T6000:
@@ -103,6 +104,7 @@ static int set_pstate(const struct cluster_t *cluster, uint32_t pstate)
                 val |= CLUSTER_PSTATE_SET | FIELD_PREP(CLUSTER_PSTATE_DESIRED2, pstate);
                 /* fallthrough */
             case T8112:
+            case T8132:
             case T6020:
             case T6021:
             case T6022:
@@ -202,6 +204,7 @@ int cpufreq_init_cluster(const struct cluster_t *cluster, const struct feat_t *f
             /* APSC Snooze */
             set64(cluster->base + 0x200f8, BIT(40));
             break;
+        case T8132:
         case T6030:
         case T6031:
         case T6034:
@@ -339,6 +342,13 @@ static const struct cluster_t t8112_clusters[] = {
     {},
 };
 
+static const struct cluster_t t8132_clusters[] = {
+    {"ECPU", 0x210e00000, false, 0, 6},
+    {"PCPU", 0x211e00000, true, 1, 4},
+    {},
+};
+
+
 static const struct cluster_t t6020_clusters[] = {
     {"ECPU0", 0x210e00000, false, 1, 5},
     {"PCPU0", 0x211e00000, true, 1, 6},
@@ -398,6 +408,8 @@ const struct cluster_t *cpufreq_get_clusters(void)
             return t6002_clusters;
         case T8112:
             return t8112_clusters;
+        case T8132:
+            return t8132_clusters;
         case T6020:
         case T6021:
             return t6020_clusters;
@@ -457,6 +469,7 @@ static const struct feat_t t8112_features[] = {
      false},
     {},
 };
+
 
 static const struct feat_t t6020_features[] = {
     {"cpu-apsc", CLUSTER_PSTATE, CLUSTER_PSTATE_M2_APSC_DIS, 0, CLUSTER_PSTATE_APSC_BUSY, false},
