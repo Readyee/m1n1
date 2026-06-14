@@ -77,7 +77,6 @@ struct tz_regs t8132_tz_regs = {
     .enable = 0x6e4,
 };
 
-
 #define PLANE_CACHE_ENABLE 0x1c00
 #define PLANE_CACHE_STATUS 0x1c04
 
@@ -109,11 +108,10 @@ struct tz_regs t8132_tz_regs = {
      FIELD_PREP(T8103_CACHE_STATUS_TAG_COUNT, T8103_CACHE_WAYS))
 
 #define T8132_CACHE_WAYS        16
-#define T8132_CACHE_STATUS_MASK \
-    (T8132_CACHE_STATUS_DATA_COUNT | T8132_CACHE_STATUS_TAG_COUNT)
-#define T8132_CACHE_STATUS_VAL \
-    (FIELD_PREP(T8132_CACHE_STATUS_DATA_COUNT, T8132_CACHE_WAYS) | \
-     FIELD_PREP(T8132_CACHE_STATUS_TAG_COUNT, T8132_CACHE_WAYS))
+#define T8132_CACHE_STATUS_MASK (T8132_CACHE_STATUS_DATA_COUNT | T8132_CACHE_STATUS_TAG_COUNT)
+#define T8132_CACHE_STATUS_VAL                                                                     \
+    (FIELD_PREP(T8132_CACHE_STATUS_DATA_COUNT, T8132_CACHE_WAYS) |                                 \
+    FIELD_PREP(T8132_CACHE_STATUS_TAG_COUNT, T8132_CACHE_WAYS))
 
 
 
@@ -184,25 +182,15 @@ int mcc_enable_cache(void)
     /* The 6030 memory controller supports setting a waymask, but the desktop chips do not appear to
        use it */
     for (int mcc = 0; mcc < mcc_count; mcc++) {
-
         for (int plane = 0; plane < mcc_regs[mcc].plane_count; plane++) {
-
             plane_write32(mcc, plane, PLANE_CACHE_ENABLE, mcc_regs[mcc].cache_enable_val);
-
             if (plane_poll32(mcc, plane, PLANE_CACHE_STATUS, mcc_regs[mcc].cache_status_mask,
-
-                    mcc_regs[mcc].cache_status_val, CACHE_ENABLE_TIMEOUT)) {
-
+                             mcc_regs[mcc].cache_status_val, CACHE_ENABLE_TIMEOUT)) {
                 printf("MCC: timeout while enabling cache for MCC %d plane %d: 0x%x\n", mcc, plane,
-
                        plane_read32(mcc, plane, PLANE_CACHE_STATUS));
-
                 ret = -1;
-
             } else if (mcc_regs[mcc].cache_disable) {
-
                 plane_write32(mcc, plane, mcc_regs[mcc].cache_disable, 0);
-
             }
         }
     }
@@ -212,11 +200,6 @@ int mcc_enable_cache(void)
 
     return ret;
 }
-
-
-
-
-
 
 int mcc_unmap_carveouts(void)
 {
@@ -429,55 +412,47 @@ int mcc_init_t6031(int node, int *path)
 int mcc_init_t8132(int node, int *path)
 {
     u32 reg_len;
+    u32 reg_offset = 3;
 
-    if (!adt_getprop(adt, node, "reg", &reg_len)) {
-        printf("MCC: Failed to get reg property!\n");
-        return -1;
+    if (!adt_getprop(adt, node, "reg", &reg_len))
+    {
+      printf("MCC: failed to get Reg of mcc");
+      return -1;
     };
 
-    u32 amcc_count = 2;
-    u32 reg_offset = 7;
+    mcc_count = reg_len / 16 - reg_offset;
 
-    if (ADT_GETPROP(adt, node, "amcc_aperture_reg_idx", &reg_offset) < 0){
-        printf("MCC: amcc_aperture_reg_idx not found, defaulting to 7\n");
-    };
-
-
-    if (ADT_GETPROP(adt, node, "amcc_aperture_count", &amcc_count) < 0){
-        printf("MCC: amcc_aperture_count not found, defaulting to 2\n");
-    };
-
-
-    mcc_count = amcc_count;
     printf("MCC: Initializing T8132 MCCs (%d instances)...\n", mcc_count);
 
-
-
-    if (mcc_count > MAX_MCC_INSTANCES) {
-        printf("MCC: Too many instances, increase MAX_MCC_INSTANCES!\n");
-        mcc_count = MAX_MCC_INSTANCES;
+    if (mcc_count > MAX_MCC_INSTANCES)
+    {
+        printf("MCC: too many instances add more to MAX_MCC_INSTANCES");
+        return -1;
     };
 
     u32 plane_count = 0;
     u32 dcs_count = 0;
 
-
-    if (ADT_GETPROP(adt, node, "dcs-count-per-amcc", &dcs_count) < 0) {
-        printf("MCC: Failed to get dcs-count-per-amcc!\n");
+    if (!ADT_GETPROP(adt, node, "dcs-count-per-amcc", &dcs_count))
+    {
+        printf("MCC: Failed to get dcs count\n");
         return -1;
     };
 
-    if (ADT_GETPROP(adt, node, "plane-count-per-amcc", &plane_count) < 0) {
-        printf("MCC: Failed to get plane-count-per-amcc!\n");
+    if (!ADT_GETPROP(adt, node, "plane-count-per-amcc", &plane_count))
+    {
+        printf("MCC: failed to get plane count\n");
         return -1;
     };
+
 
     for (int i = 0; i < mcc_count; i++) {
         u64 base;
         if (adt_get_reg(adt, path, "reg", i + reg_offset, &base, NULL)) {
             printf("MCC: Failed to get reg index %d!\n", i + reg_offset);
             return -1;
-            };
+        }
+
         mcc_regs[i].plane_base = base + T8132_PLANE_OFFSET;
         mcc_regs[i].plane_stride = T8132_PLANE_STRIDE;
         mcc_regs[i].plane_count = plane_count;
@@ -496,13 +471,17 @@ int mcc_init_t8132(int node, int *path)
 
         mcc_regs[i].tz = &t8132_tz_regs;
     };
+
     printf("MCC: Initialized T8132 MCCs (%d instances, %d planes, %d channels)\n", mcc_count,
            mcc_regs[0].plane_count, mcc_regs[0].dcs_count);
 
     mcc_initialized = true;
 
     return 0;
+
+
 };
+
 int mcc_init(void)
 {
     int path[8];
