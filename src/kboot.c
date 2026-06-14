@@ -615,7 +615,7 @@ static int dt_set_cpus(void)
     if (aic == -FDT_ERR_NOTFOUND)
         aic = fdt_node_offset_by_compatible(dt, -1, "apple,aic2");
     if (aic == -FDT_ERR_NOTFOUND)
-        aic = fdt_node_offset_by_compatible(dt, -1, "apple,t8122-aic3");
+        aic = fdt_node_offset_by_compatible(dt, -1, "apple,aic3");
     if (aic < 0)
         bail_cleanup("FDT: Failed to find AIC node\n");
 
@@ -1989,7 +1989,11 @@ static int dt_set_display(void)
             return ret;
     } else if (!fdt_node_check_compatible(dt, 0, "apple,t6022")) {
         /* noop */
-    } else {
+    }
+    else if (!fdt_node_check_compatible(dt, 0, "apple,t8132")){
+          // noop^2
+    } 
+    else {
         printf("FDT: unknown compatible, skip display reserved-memory setup\n");
         return 0;
     }
@@ -2501,7 +2505,7 @@ __attribute__((unused)) static int dt_transfer_virtios(void)
     if (aic == -FDT_ERR_NOTFOUND)
         aic = fdt_node_offset_by_compatible(dt, -1, "apple,aic2");
     if (aic == -FDT_ERR_NOTFOUND)
-        aic = fdt_node_offset_by_compatible(dt, -1, "apple,t8122-aic3");
+        aic = fdt_node_offset_by_compatible(dt, -1, "apple,aic3");
     if (aic < 0)
         bail("FDT: failed to find AIC node\n");
 
