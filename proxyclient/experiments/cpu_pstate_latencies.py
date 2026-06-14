@@ -34,16 +34,16 @@ if chip_id in (0x8103, 0x6000, 0x6001, 0x6002):
 
     MAX_PSTATE = [5, 15]
 
-elif chip_id in (0x8112, 0x6020, 0x6021, 0x6022):
+elif chip_id in (0x8112, 0x6020, 0x6021, 0x6022, 0x8132):
     CREG = [
         0x210e00000,
         0x211e00000,
     ]
-
-    if u.adt["/chosen"].target_type == "J416c":
-        MAX_PSTATE = [7, 19]
-    else:
-        MAX_PSTATE = [7, 17]
+    #
+    # if u.adt["/chosen"].target_type == "J416c":
+    #     MAX_PSTATE = [7, 19]
+    # else:
+    MAX_PSTATE = [7, 17]
 
 code = u.malloc(0x1000)
 
